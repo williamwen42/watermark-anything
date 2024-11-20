@@ -101,8 +101,12 @@ class Augmenter(nn.Module):
             h, w = image.shape[-2:]
             image, mask = selected_aug(image, mask)
             if image.shape[-2:] != (h, w):
-                image = nn.functional.interpolate(image, size=(h, w), mode='bilinear', align_corners=False, antialias=True)
-                mask = nn.functional.interpolate(mask, size=(h, w), mode='nearest')
+                @torch.compiler.disable
+                def interpolate():
+                    nonlocal image, mask
+                    image = nn.functional.interpolate(image, size=(h, w), mode='bilinear', align_corners=False, antialias=True)
+                    mask = nn.functional.interpolate(mask, size=(h, w), mode='nearest')
+                interpolate()
         return image, mask.int(), str(selected_aug)
     
     def forward(
