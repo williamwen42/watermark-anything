@@ -29,6 +29,10 @@ def timed(fn):
     return result, start.elapsed_time(end) / 1000
 
 
+import torch._dynamo.config
+
+torch._dynamo.config.capture_dynamic_output_shape_ops = True
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Load the model from the specified checkpoint
